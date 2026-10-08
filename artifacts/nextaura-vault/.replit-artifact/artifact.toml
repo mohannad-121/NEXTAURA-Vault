@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "NEXTAURA Vault"
+description = "A private, MFA-protected encrypted credential command center for the NextAura founders, with four division vaults and cinematic brand interactions."
+version = "1.0.0"
+id = "artifacts/nextaura-vault"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19116
+
+[services.development]
+run = "pnpm --filter @workspace/nextaura-vault run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/nextaura-vault", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/nextaura-vault/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19116"
+BASE_PATH = "/"

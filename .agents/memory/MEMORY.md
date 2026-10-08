@@ -1,0 +1,1 @@
+- [Vite dependency cache](vite-dependency-cache.md) — catalog React upgrades can leave stale prebundles despite correct installed versions.

@@ -1,0 +1,367 @@
+# NEXTAURA VAULT — PREMIUM CINEMATIC EXPERIENCE UPGRADE
+
+You are building **NextAura Vault**, an exclusive, private credential management platform for the two founders, Mohannad and Moayad.
+
+I am using **Replit Pro**, and I expect an exceptionally polished, production-oriented result. Use the available development, testing, and preview capabilities to deliver the highest practical level of quality.
+
+IMPORTANT: All previous application requirements remain mandatory, including secure authentication, MFA, server-side encryption, access management, credential management, and database functionality.
+
+This prompt adds critical visual and interaction requirements. Do not remove or simplify existing functionality.
+
+# 1. CINEMATIC INTRO EXPERIENCE — MANDATORY
+
+Design a breathtaking cinematic entrance experience that appears after successful authentication and before the main dashboard.
+
+This must feel like the opening sequence of a premium technology company operating system.
+
+## Stage 1 — The Beginning
+
+The screen begins almost completely black, with a subtle atmospheric background.
+
+A soft golden light gradually appears in the center.
+
+The original **NextAura Agency** gold logo emerges beautifully with a refined cinematic reveal.
+
+Use:
+- Subtle volumetric-inspired lighting.
+- Smooth opacity transitions.
+- Elegant scaling.
+- Premium light sweeps.
+- Controlled cinematic timing.
+
+Do not modify the original logo design.
+
+## Stage 2 — The Ecosystem Awakens
+
+The three subsidiary company logos appear around the Agency logo:
+
+**NextAura AI**
+Purple and electric blue ambient lighting.
+
+**NextAura Studios**
+Fiery orange and red ambient lighting.
+
+**NextAura OS**
+Emerald green and teal ambient lighting.
+
+Each logo must use its exact uploaded original asset.
+
+Introduce the logos with beautifully synchronized motion, smooth positioning, and subtle individual lighting.
+
+Avoid aggressive spinning, bouncing, or exaggerated effects.
+
+The Agency logo should visually establish the parent brand.
+
+## Stage 3 — Ecosystem Formation
+
+The four company logos form a balanced and visually striking composition.
+
+Soft light connections or subtle animated energy paths may briefly connect the four brands.
+
+Display the heading:
+
+**NEXTAURA VAULT**
+
+With the tagline:
+
+**One Ecosystem. One Secure Command Center.**
+
+The typography must feel luxurious, confident, and modern.
+
+## Stage 4 — Transition Into Dashboard
+
+The cinematic composition gently dissolves into the main application.
+
+The animation should feel like one continuous camera movement or seamless transition.
+
+The dashboard emerges smoothly, with navigation, brand cards, and summary panels appearing in elegant staggered motion.
+
+No hard screen cuts.
+
+No sudden flashes.
+
+No jarring jumps.
+
+No blank frames between the intro and dashboard.
+
+## Intro Performance Rules
+
+- Target approximately 3–5 seconds maximum.
+- Make the intro skippable.
+- Show the full intro on first login or when explicitly replayed.
+- Do not replay it on every page navigation.
+- Respect prefers-reduced-motion.
+- Never delay authentication or expose private information during the intro.
+- Avoid resource-heavy effects.
+- Maintain smooth animation on typical desktop and mobile devices.
+
+Add a **Replay Intro** option in the user settings.
+
+# 2. DYNAMIC AMBIENT LIGHTING SYSTEM — MANDATORY
+
+The entire NextAura Vault interface must have a reactive ambient lighting system.
+
+The environment changes smoothly according to the selected NextAura division.
+
+## Agency Mode
+
+Primary ambient colors:
+- Champagne Gold
+- Metallic Gold
+- Warm Dark Bronze
+
+The interface should feel luxurious, exclusive, and executive.
+
+## AI Mode
+
+Primary ambient colors:
+- Electric Purple
+- Royal Blue
+- Deep Indigo
+
+The interface should feel futuristic, intelligent, and technologically advanced.
+
+## Studios Mode
+
+Primary ambient colors:
+- Vivid Orange
+- Fiery Red
+- Dark Crimson
+
+The interface should feel creative, bold, and energetic.
+
+## OS Mode
+
+Primary ambient colors:
+- Emerald Green
+- Neon Teal
+- Dark Forest Green
+
+The interface should feel sophisticated, connected, and secure.
+
+## Lighting Behavior
+
+When switching between divisions:
+
+1. The existing ambient glow gently fades.
+2. The new brand colors gradually emerge.
+3. Subtle background radial gradients transition smoothly.
+4. Active navigation indicators adopt the selected brand accent.
+5. Card outlines and interactive highlights adapt.
+6. The original logos retain their exact colors.
+
+Transitions must be smooth, not abrupt.
+
+Use CSS variables and an organized theme system.
+
+The ambient system must not reduce text contrast or readability.
+
+Do not create heavy glowing backgrounds that make the dashboard difficult to use.
+
+# 3. NEXTAURA ECOSYSTEM INTERACTIVE HUB
+
+Create a beautiful interactive section in the dashboard featuring the four divisions.
+
+The logos must be the visual centerpiece.
+
+Build premium company cards with:
+- Large original logo.
+- Company name.
+- Beautiful illuminated border.
+- Credential count.
+- Platform count.
+- Direct access to the company vault.
+- Subtle depth.
+- Refined hover animation.
+
+When hovering over a company card:
+- Its brand lighting becomes slightly stronger.
+- The card lifts subtly.
+- The logo receives a gentle reflected-light treatment.
+- A beautiful animated arrow indicates navigation.
+
+When selecting the company:
+- Smoothly transition to the company's vault.
+- Activate the correct brand ambient theme.
+- Highlight the selected company in the sidebar.
+
+No full-page reloads for internal navigation.
+
+# 4. AUTHENTIC PLATFORM BRANDING
+
+The password vault must visually organize our digital services using recognizable, high-quality platform logos.
+
+Mandatory initial platforms:
+- Instagram
+- Gmail
+- Supabase
+- Render
+- GitHub
+- Vercel
+- Replit
+- Resend
+- Cloudflare
+- GoDaddy
+- OpenAI
+- Anthropic
+- Gemini
+
+Use authentic platform icons, not random generic substitutes.
+
+Make service cards feel like premium software components.
+
+Each account needs:
+- Platform logo.
+- Account name.
+- Email or username.
+- Company association.
+- Masked password.
+- Copy username.
+- Secure password reveal.
+- Copy password.
+- Open platform.
+- Edit credential.
+- Delete credential with confirmation.
+- Favorite toggle.
+
+All features must work with actual backend functionality and appropriate server-side authorization.
+
+# 5. BEAUTIFUL INTERACTION DETAILS
+
+Implement refined animations across the experience:
+
+- Smooth animated sidebar.
+- Elegant active navigation indicator.
+- Luxury glassmorphism panels.
+- Soft moving background gradients.
+- Beautiful hover transitions.
+- High-quality button interactions.
+- Animated command palette.
+- Smooth loading states.
+- Premium notification toasts.
+- Professional account dialogs.
+- Excellent spacing and typography.
+- Subtle progress feedback.
+- Fluid page transitions.
+
+Use Motion / Framer Motion where appropriate.
+
+Avoid excessive animation libraries or unnecessary dependencies.
+
+# 6. PREMIUM LOGIN SCREEN
+
+Create a stunning private login interface.
+
+Use the original gold NextAura Agency logo as the primary identity.
+
+Show:
+
+**NEXTAURA VAULT**
+
+**Private Access. Complete Control.**
+
+Add a subtle cinematic background with premium lighting.
+
+The login experience should feel private, exclusive, and serious.
+
+Authentication must remain secure and functional.
+
+Require MFA.
+
+Do not provide a demo bypass or hardcoded credentials.
+
+# 7. THE PERFECT DASHBOARD EXPERIENCE
+
+After the intro, the user arrives at a fully functional command center.
+
+The dashboard should include:
+
+- Personalized founder greeting.
+- Four original brand logos.
+- Ecosystem summary cards.
+- Saved credential statistics.
+- Favorite account shortcuts.
+- Recent account activity.
+- Quick add credential action.
+- Global search.
+- Platform directory.
+- Security settings.
+- User profile.
+- Vault locking functionality.
+
+Use real database-backed information.
+
+If the database is empty, display sophisticated empty states instead of fabricated data.
+
+# 8. SECURITY REMAINS NON-NEGOTIABLE
+
+This is a real credential management application, not a decorative website.
+
+Maintain:
+- Authenticated encryption for stored secrets.
+- Server-side cryptographic operations.
+- Secure key storage.
+- Separate founder identities.
+- Mandatory MFA.
+- Server-enforced access permissions.
+- Secure sessions.
+- Audit logs without secret values.
+- Protection against credential leakage.
+- Reauthentication for sensitive actions.
+- Secure encrypted backup and recovery design.
+
+Never embed real passwords in source code, frontend state persistence, seed data, screenshots, or logs.
+
+Use fake credentials exclusively for testing.
+
+If the architecture is not suitable for securely handling actual business credentials, identify the gaps explicitly before recommending production usage.
+
+# 9. REPLIT PRO EXECUTION EXPECTATIONS
+
+Since this project is being built with Replit Pro, prioritize quality, thorough testing, and a complete implementation.
+
+Do not stop after generating a landing page.
+
+Do not provide a static dashboard prototype and pretend the project is finished.
+
+Build the full application in sensible phases:
+1. Establish application architecture and security model.
+2. Implement database and encryption infrastructure.
+3. Implement authentication and founder authorization.
+4. Build the premium NextAura design system.
+5. Implement the cinematic intro.
+6. Implement the dynamic ambient lighting engine.
+7. Build the dashboard and ecosystem hub.
+8. Build credential management.
+9. Implement platform branding, search, and settings.
+10. Test functionality, animations, responsiveness, and security.
+
+Use browser preview and testing capabilities where available.
+
+Pay special attention to animation continuity, layout consistency, mobile performance, and actual functionality.
+
+Never claim a feature is complete unless implemented.
+
+# 10. FINAL QUALITY STANDARD
+
+The application must resemble an expensive private enterprise platform.
+
+My visual benchmark is:
+
+**Apple × Linear × Vercel × Luxury Futuristic Command Center**
+
+Every screen should feel intentional.
+
+Every transition should feel polished.
+
+Every company should have its own recognizable atmosphere.
+
+The original NextAura logos must remain unchanged.
+
+The app should be intuitive, fast, secure, and beautiful.
+
+Most importantly:
+
+**I do not want a basic AI-generated dashboard. I want a distinctive flagship internal platform built specifically for the NextAura ecosystem.**
+
+Deliver the best possible version of **NEXTAURA VAULT**.

@@ -1,36 +1,338 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
-  version: 0.1.0
-  description: API specification
+  version: 1.0.0
+  description: Private NextAura credential vault. All vault operations require founder authorization and MFA.
 servers:
   - url: /api
-    description: Base API path
-tags:
-  - name: health
-    description: Health operations
 paths:
   /healthz:
     get:
       operationId: healthCheck
-      tags: [health]
-      summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
           content:
             application/json:
+              schema: { $ref: "#/components/schemas/HealthStatus" }
+  /vault/me:
+    get:
+      operationId: getVaultSession
+      responses:
+        "200":
+          description: Current founder and security gate
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VaultSession" }
+  /vault/summary:
+    get:
+      operationId: getVaultSummary
+      responses:
+        "200":
+          description: Real vault statistics
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VaultSummary" }
+  /vault/activity:
+    get:
+      operationId: getVaultActivity
+      responses:
+        "200":
+          description: Recent authorized audit events without secret values
+          content:
+            application/json:
               schema:
-                $ref: "#/components/schemas/HealthStatus"
+                type: array
+                items: { $ref: "#/components/schemas/Activity" }
+  /vault/platforms:
+    get:
+      operationId: getPlatforms
+      responses:
+        "200":
+          description: Authentic platform directory
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Platform" }
+  /vault/credentials:
+    get:
+      operationId: listCredentials
+      parameters:
+        - { name: division, in: query, schema: { $ref: "#/components/schemas/Division" } }
+        - { name: search, in: query, schema: { type: string, maxLength: 200 } }
+        - { name: favorites, in: query, schema: { type: boolean } }
+      responses:
+        "200":
+          description: Metadata only; passwords never included
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Credential" }
+    post:
+      operationId: createCredential
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CredentialInput" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Credential" }
+  /vault/credentials/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    patch:
+      operationId: updateCredential
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CredentialUpdate" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Credential" }
+    delete:
+      operationId: deleteCredential
+      responses:
+        "204": { description: Deleted after reauthentication }
+  /vault/credentials/{id}/favorite:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    patch:
+      operationId: favoriteCredential
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/FavoriteInput" }
+      responses:
+        "200":
+          description: Personal favorite updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Credential" }
+  /vault/credentials/{id}/reveal:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    post:
+      operationId: revealCredential
+      responses:
+        "200":
+          description: Secret returned only with recent second-factor verification; never cache
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RevealedSecret" }
+  /vault/settings:
+    patch:
+      operationId: updateVaultSettings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SettingsInput" }
+      responses:
+        "200":
+          description: Saved personal preferences
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/VaultSession" }
+  /vault/lock:
+    post:
+      operationId: lockVault
+      responses:
+        "204": { description: Clerk session revoked; sign in again to unlock }
+  /vault/access:
+    get:
+      operationId: getFounderAccess
+      responses:
+        "200":
+          description: Founder access management
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/FounderAccess" }
+  /vault/access/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    patch:
+      operationId: updateFounderAccess
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AccessInput" }
+      responses:
+        "200":
+          description: Updated founder division permissions
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FounderAccess" }
+  /vault/backup:
+    post:
+      operationId: exportVaultBackup
+      responses:
+        "200":
+          description: Authenticated encrypted backup envelope; no plaintext secrets
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BackupEnvelope" }
+  /vault/restore:
+    post:
+      operationId: restoreVaultBackup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BackupEnvelope" }
+      responses:
+        "200":
+          description: Restored without overwriting existing records
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RestoreResult" }
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
-        status:
-          type: string
-      required:
-        - status
-
+        status: { type: string }
+    Division:
+      type: string
+      enum: [agency, ai, studios, os]
+    VaultSession:
+      type: object
+      required: [status, name, founder, mfaEnabled, encryptionReady, introSeen, defaultDivision, allowedDivisions]
+      properties:
+        status: { type: string, enum: [ready, access_pending, mfa_required, mfa_verification_required, encryption_required] }
+        name: { type: string }
+        founder: { type: string }
+        mfaEnabled: { type: boolean }
+        encryptionReady: { type: boolean }
+        introSeen: { type: boolean }
+        defaultDivision: { $ref: "#/components/schemas/Division" }
+        allowedDivisions:
+          type: array
+          items: { $ref: "#/components/schemas/Division" }
+    DivisionSummary:
+      type: object
+      required: [division, credentialCount, platformCount]
+      properties:
+        division: { $ref: "#/components/schemas/Division" }
+        credentialCount: { type: integer }
+        platformCount: { type: integer }
+    VaultSummary:
+      type: object
+      required: [credentialCount, platformCount, favoriteCount, divisionCount, divisions]
+      properties:
+        credentialCount: { type: integer }
+        platformCount: { type: integer }
+        favoriteCount: { type: integer }
+        divisionCount: { type: integer }
+        divisions:
+          type: array
+          items: { $ref: "#/components/schemas/DivisionSummary" }
+    Credential:
+      type: object
+      required: [id, division, platform, accountName, username, favorite, createdAt, updatedAt]
+      properties:
+        id: { type: string }
+        division: { $ref: "#/components/schemas/Division" }
+        platform: { type: string }
+        accountName: { type: string }
+        username: { type: string }
+        favorite: { type: boolean }
+        createdAt: { type: string }
+        updatedAt: { type: string }
+    CredentialInput:
+      type: object
+      required: [division, platform, accountName, username, password]
+      properties:
+        division: { $ref: "#/components/schemas/Division" }
+        platform: { type: string, minLength: 1, maxLength: 50 }
+        accountName: { type: string, minLength: 1, maxLength: 120 }
+        username: { type: string, minLength: 1, maxLength: 320 }
+        password: { type: string, minLength: 1, maxLength: 4096 }
+    CredentialUpdate:
+      type: object
+      properties:
+        division: { $ref: "#/components/schemas/Division" }
+        platform: { type: string, minLength: 1, maxLength: 50 }
+        accountName: { type: string, minLength: 1, maxLength: 120 }
+        username: { type: string, minLength: 1, maxLength: 320 }
+        password: { type: string, minLength: 1, maxLength: 4096 }
+    FavoriteInput:
+      type: object
+      required: [favorite]
+      properties:
+        favorite: { type: boolean }
+    RevealedSecret:
+      type: object
+      required: [password]
+      properties:
+        password: { type: string }
+    Platform:
+      type: object
+      required: [id, name, url, icon, category]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        url: { type: string }
+        icon: { type: string }
+        category: { type: string }
+    Activity:
+      type: object
+      required: [id, actor, action, division, createdAt]
+      properties:
+        id: { type: string }
+        actor: { type: string }
+        action: { type: string }
+        division: { type: string }
+        createdAt: { type: string }
+    SettingsInput:
+      type: object
+      properties:
+        introSeen: { type: boolean }
+        defaultDivision: { $ref: "#/components/schemas/Division" }
+    FounderAccess:
+      type: object
+      required: [id, name, founder, allowedDivisions, active]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        founder: { type: string }
+        active: { type: boolean }
+        allowedDivisions:
+          type: array
+          items: { $ref: "#/components/schemas/Division" }
+    AccessInput:
+      type: object
+      required: [allowedDivisions, active]
+      properties:
+        active: { type: boolean }
+        allowedDivisions:
+          type: array
+          maxItems: 4
+          uniqueItems: true
+          items: { $ref: "#/components/schemas/Division" }
+    BackupEnvelope:
+      type: object
+      required: [format, ciphertext]
+      properties:
+        format: { type: string, enum: [nextaura-vault-v1] }
+        ciphertext: { type: string, minLength: 1, maxLength: 10000000 }
+    RestoreResult:
+      type: object
+      required: [restored, skipped]
+      properties:
+        restored: { type: integer }
+        skipped: { type: integer }
