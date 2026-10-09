@@ -19,7 +19,8 @@ import backupRouter from "./vault-backup.js";
 
 const router: IRouter = Router();
 router.use((_req, res, next) => {
-  res.set({ "Cache-Control": "no-store, private", "Pragma": "no-cache", "Vary": "Authorization" });
+  res.set({ "Cache-Control": "no-store, private", "Pragma": "no-cache" });
+  res.vary("Authorization");
   next();
 });
 

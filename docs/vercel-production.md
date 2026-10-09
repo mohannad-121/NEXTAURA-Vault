@@ -23,6 +23,7 @@ Server runtime variables:
 - `SUPABASE_CA_CERT` (Secret) — the Supabase root CA PEM contents; use a multiline value or escaped `\\n` newlines
 - `VAULT_ENCRYPTION_KEY` (Secret) — the existing 64-character hexadecimal production key; changing it makes existing ciphertext unreadable
 - `FOUNDER_MOHANNAD_USER_ID` and `FOUNDER_MOAYAD_USER_ID` (Secret) — existing, distinct Supabase Auth UUIDs
+- `VAULT_EXTENSION_ID=mfhbbeeolmdfojdfenemmnehkagboeoo` (Config) — exact trusted Manifest V3 origin; do not use an origin wildcard
 - `LOG_LEVEL=info` (optional Config)
 
 Do not configure `DATABASE_MIGRATION_URL`, `PORT`, `LOCAL_API_URL`, or `NODE_EXTRA_CA_CERTS` in Vercel. Certificate files remain excluded from Git; the Function reads `SUPABASE_CA_CERT` and keeps `rejectUnauthorized` enabled.

@@ -9,7 +9,13 @@ import helmet from "helmet";
 import { rateLimit } from "express-rate-limit";
 import router from "./routes/index.js";
 import { logger } from "./lib/logger.js";
-import { authRateLimitKey, publicHost } from "./lib/request-security.js";
+import {
+  authRateLimitKey,
+  isAllowedVaultMutationOrigin,
+  isChromeExtensionOrigin,
+  isTrustedExtensionOrigin,
+  publicHost,
+} from "./lib/request-security.js";
 
 const app = express();
 app.set("trust proxy", 1);
@@ -37,18 +43,46 @@ app.use(
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.json({ limit: "12mb" }));
 
+// The browser extension uses bearer authentication, never cookies. Only the
+// pinned extension origin receives cross-origin access; no wildcard or
+// credentialed CORS response is emitted.
+app.use("/api/vault", (req: Request, res: Response, next: NextFunction) => {
+  const origin = req.get("origin");
+  const trustedExtension = isTrustedExtensionOrigin(origin);
+
+  if (isChromeExtensionOrigin(origin) && !trustedExtension) {
+    res.status(403).json({ error: "Untrusted extension origin." });
+    return;
+  }
+
+  if (trustedExtension) {
+    res.set({
+      "Access-Control-Allow-Origin": origin,
+      "Access-Control-Allow-Headers": "Authorization, Content-Type",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Max-Age": "600",
+    });
+    res.vary("Origin");
+    if (req.method === "OPTIONS") {
+      res.sendStatus(204);
+      return;
+    }
+  }
+  next();
+});
+
 // Browser-cookie authentication is same-origin only. Never allow credentialed
 // wildcard CORS; reject cross-site mutations even when a valid cookie is present.
 app.use("/api/vault", (req: Request, res: Response, next: NextFunction) => {
   if (["POST", "PATCH", "DELETE", "PUT"].includes(req.method)) {
     const origin = req.get("origin");
     const host = publicHost(req);
-    let sameOrigin = false;
-    try {
-      const source = origin ? new URL(origin) : undefined;
-      sameOrigin = !!source && source.host === host && source.protocol === `${req.protocol}:`;
-    } catch { /* fail closed */ }
-    if (!sameOrigin || req.get("sec-fetch-site") === "cross-site") {
+    const publicOrigin = host ? `${req.protocol}://${host}` : undefined;
+    if (!isAllowedVaultMutationOrigin({
+      origin,
+      publicOrigin,
+      secFetchSite: req.get("sec-fetch-site"),
+    })) {
       res.status(403).json({ error: "Cross-site request rejected." }); return;
     }
     if (req.get("content-length") && req.get("content-length") !== "0" && !req.is("application/json")) {

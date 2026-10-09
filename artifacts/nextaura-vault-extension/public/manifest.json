@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "NEXTAURA Vault",
+  "description": "Private, MFA-protected access to the NEXTAURA founders' credential vault.",
+  "version": "0.1.0",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5E5QkzmjtG/jjDxyYl5tsuohYFTn3wmeRzTTyuNvw1Xs5Q+t8XuCiIZLczuePucvF+MOdBfoCp9OL71UhA+AFjfW+wOgDQdFB0VQZXTlJGOlUsr5o81C5BgJjE+mh3AZ9xU5lxYSn7vKyGBvayXFdJ3y3A/Aj4xhdmwSdEZwXsORRQjAKhiBi2SAxTg6ROiIf+MSyOWEWzwiIFVYh8S7An+/JB48M+cm6P4aaR2TyJeCp1pFp0rr+skZKsmwTx86oo2u0BltPGfSJiL5wjZlbBMIQwRqZgIV1uwzURaidWqgkWj4VHCvcGiLQNSM5n1y4LuGROV2yRyzSsZmZIJzuwIDAQAB",
+  "permissions": ["storage", "clipboardWrite"],
+  "host_permissions": [
+    "https://nextaura-vault.vercel.app/*",
+    "https://qulqcuuzncyyszgdpfad.supabase.co/*"
+  ],
+  "action": {
+    "default_title": "Open NEXTAURA Vault",
+    "default_popup": "index.html",
+    "default_icon": {
+      "16": "brands/nextaura-vault.png",
+      "32": "brands/nextaura-vault.png",
+      "48": "brands/nextaura-vault.png",
+      "128": "brands/nextaura-vault.png"
+    }
+  },
+  "icons": {
+    "16": "brands/nextaura-vault.png",
+    "32": "brands/nextaura-vault.png",
+    "48": "brands/nextaura-vault.png",
+    "128": "brands/nextaura-vault.png"
+  }
+}

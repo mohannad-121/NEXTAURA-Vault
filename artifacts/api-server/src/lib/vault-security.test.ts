@@ -2,13 +2,21 @@ import { test, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import { encrypt, decrypt, encryptionReady } from "./vault-crypto.js";
 import { configuredFounderRole, validSecondFactorAge } from "./vault-policy.js";
-import { authRateLimitKey, publicHost } from "./request-security.js";
+import {
+  authRateLimitKey,
+  configuredExtensionOrigin,
+  isAllowedVaultMutationOrigin,
+  isChromeExtensionOrigin,
+  isTrustedExtensionOrigin,
+  publicHost,
+} from "./request-security.js";
 
 // Explicitly fake test-only key. Tests never read or use the project's real key.
 beforeEach(() => {
   process.env.VAULT_ENCRYPTION_KEY = "0".repeat(64);
   process.env.FOUNDER_MOHANNAD_USER_ID = "11111111-1111-4111-8111-111111111111";
   process.env.FOUNDER_MOAYAD_USER_ID = "22222222-2222-4222-8222-222222222222";
+  process.env.VAULT_EXTENSION_ID = "mfhbbeeolmdfojdfenemmnehkagboeoo";
 });
 test("credential encryption round trips fake unicode secrets", () => {
   const fake = "test-only-password-✓";
@@ -89,6 +97,26 @@ test("forwarded production host is normalized without trusting extra values", ()
     get: () => "ignored.example",
   };
   assert.equal(publicHost(req as never), "vault.example.com");
+});
+test("only the configured Chrome extension origin is trusted", () => {
+  assert.equal(configuredExtensionOrigin(), "chrome-extension://mfhbbeeolmdfojdfenemmnehkagboeoo");
+  assert.equal(isTrustedExtensionOrigin("chrome-extension://mfhbbeeolmdfojdfenemmnehkagboeoo"), true);
+  assert.equal(isTrustedExtensionOrigin("chrome-extension://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"), false);
+  assert.equal(isTrustedExtensionOrigin("https://nextaura-vault.vercel.app"), false);
+  process.env.VAULT_EXTENSION_ID = "../../invalid";
+  assert.equal(configuredExtensionOrigin(), undefined);
+});
+test("vault mutations permit only same-origin or the exact configured extension", () => {
+  const extension = "chrome-extension://mfhbbeeolmdfojdfenemmnehkagboeoo";
+  const production = "https://nextaura-vault.vercel.app";
+  assert.equal(isChromeExtensionOrigin(extension), true);
+  assert.equal(isChromeExtensionOrigin(`${extension}/`), false);
+  assert.equal(isAllowedVaultMutationOrigin({ origin: extension, publicOrigin: production, secFetchSite: "cross-site" }), true);
+  assert.equal(isAllowedVaultMutationOrigin({ origin: production, publicOrigin: production, secFetchSite: "same-origin" }), true);
+  assert.equal(isAllowedVaultMutationOrigin({ origin: production, publicOrigin: production, secFetchSite: "cross-site" }), false);
+  assert.equal(isAllowedVaultMutationOrigin({ origin: "chrome-extension://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", publicOrigin: production, secFetchSite: "cross-site" }), false);
+  assert.equal(isAllowedVaultMutationOrigin({ origin: undefined, publicOrigin: production, secFetchSite: undefined }), false);
+  assert.equal(isAllowedVaultMutationOrigin({ origin: "null", publicOrigin: production, secFetchSite: "cross-site" }), false);
 });
 test("division and recent-MFA gates fail closed", async () => {
   const testDatabaseUrl = new URL("postgresql://127.0.0.1:5432/postgres?sslmode=require");
