@@ -4,7 +4,7 @@ import { ArrowRight, Clock, Fingerprint, KeyRound, ShieldCheck } from 'lucide-re
 import { useAuth } from '@/components/auth/provider';
 import { DIVISIONS, DIVISION_ORDER } from '@/lib/brand';
 import { Ambient } from '@/components/vault/ambient';
-import { DivisionLogo } from '@/components/vault/logos';
+import { DivisionLogo, VaultLogo } from '@/components/vault/logos';
 import { Button } from '@/components/ui/button';
 
 const fade = (d = 0) => ({ initial: { opacity: 0, y: 22 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: '-60px' }, transition: { duration: 0.9, delay: d, ease: [0.22, 1, 0.36, 1] as const } });
@@ -28,7 +28,7 @@ function Landing() {
       <section className="relative mx-auto flex min-h-[82dvh] max-w-6xl flex-col items-center justify-center px-5 text-center">
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1] }} className="relative">
           <div className="absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-40 blur-3xl" style={{ background: 'radial-gradient(closest-side, hsl(43 62% 58% / .5), transparent)' }} />
-          <DivisionLogo division="agency" size={230} className="relative" />
+          <VaultLogo size={250} className="relative" />
         </motion.div>
         <motion.h1 initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 1 }} className="font-display mt-2 text-[clamp(2.4rem,8vw,5.6rem)] uppercase leading-none tracking-[0.22em]">NEXTAURA VAULT</motion.h1>
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9, duration: 1 }} className="mt-5 text-sm uppercase tracking-[0.34em] text-[#b9a77f]">Private Access. Complete Control.</motion.p>
@@ -65,7 +65,7 @@ function Landing() {
       </section>
 
       <footer className="border-t border-border/60 py-10 text-center">
-        <DivisionLogo division="agency" size={64} className="mx-auto opacity-80" />
+        <VaultLogo size={64} className="mx-auto opacity-80" />
         <p className="mt-2 text-xs uppercase tracking-[0.3em] text-muted-foreground">One Ecosystem. One Secure Command Center.</p>
       </footer>
     </div>

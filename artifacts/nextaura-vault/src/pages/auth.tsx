@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, Redirect, useLocation } from 'wouter';
 import { ArrowLeft, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { Ambient } from '@/components/vault/ambient';
-import { DivisionLogo, Wordmark } from '@/components/vault/logos';
+import { VaultLogo, Wordmark } from '@/components/vault/logos';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -46,7 +46,7 @@ export function SignInPage() {
       <p className="mb-5 text-[11px] uppercase tracking-[0.35em] text-[#b9a77f]">Private Access. Complete Control.</p>
       <div className="glass w-[440px] max-w-full rounded-3xl border border-[#d4b068]/25 p-7 shadow-2xl sm:p-9">
         <div className="flex flex-col items-center text-center">
-          <DivisionLogo division="agency" size={112} />
+          <VaultLogo size={132} />
           <Wordmark className="mt-1 text-sm" />
           <h1 className="font-display mt-6 text-3xl">Enter the vault</h1>
           <p className="mt-2 text-sm text-muted-foreground">Sign in with your provisioned founder account.</p>
