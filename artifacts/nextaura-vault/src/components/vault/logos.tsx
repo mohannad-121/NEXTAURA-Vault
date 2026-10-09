@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Division, Platform } from '@workspace/api-client-react';
-import { DIVISIONS, platformIconUrl } from '@/lib/brand';
+import { asset, DIVISIONS, platformIconUrl } from '@/lib/brand';
 import { cn } from '@/lib/utils';
 
 /** Original asset, unmodified. Cropped visually via scale; screen-blend dissolves the black matte on dark surfaces. */
@@ -10,6 +10,18 @@ export function DivisionLogo({ division, size = 64, crop = 1.65, className }: { 
     <span className={cn('relative inline-block shrink-0 overflow-hidden', className)} style={{ width: size, height: size }}>
       <img src={d.logo} alt={d.name} draggable={false} className="absolute inset-0 h-full w-full select-none object-contain mix-blend-screen" style={{ transform: `scale(${crop})` }} />
     </span>
+  );
+}
+
+export function VaultLogo({ size = 48, className }: { size?: number; className?: string }) {
+  return (
+    <img
+      src={asset('brands/nextaura-vault.png')}
+      alt="NextAura Vault"
+      draggable={false}
+      className={cn('shrink-0 select-none object-contain', className)}
+      style={{ width: size, height: size }}
+    />
   );
 }
 

@@ -17,7 +17,7 @@ import { Ambient } from './ambient';
 import { VaultContext } from './context';
 import { CredentialDialog, type DialogState } from './credential-dialog';
 import { Intro } from './intro';
-import { DivisionLogo, PlatformLogo, Wordmark } from './logos';
+import { DivisionLogo, PlatformLogo, VaultLogo, Wordmark } from './logos';
 
 const IDLE_MS = 15 * 60 * 1000;
 
@@ -163,7 +163,7 @@ export function Shell({ session, children }: { session: VaultSession; children: 
   const sidebar = (onNavigate?: () => void) => (
     <div className="flex h-full flex-col">
       <Link href="/dashboard" onClick={onNavigate} className="mb-7 flex items-center gap-3 px-2" data-testid="link-home">
-        <DivisionLogo division="agency" size={44} />
+        <VaultLogo size={48} />
         <div className="leading-tight"><Wordmark className="block text-[.78rem]" /><span className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Founders only</span></div>
       </Link>
       <div className="-mx-1 flex-1 overflow-y-auto px-1"><NavList onNavigate={onNavigate} /></div>
