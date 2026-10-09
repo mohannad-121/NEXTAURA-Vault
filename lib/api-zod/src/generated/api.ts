@@ -39,7 +39,7 @@ export const GetVaultSummaryResponse = zod.object({
 
 
 export const GetVaultActivityResponseItem = zod.object({
-  "id": zod.string(),
+  "id": zod.string().uuid(),
   "actor": zod.string(),
   "action": zod.string(),
   "division": zod.string(),
@@ -69,7 +69,7 @@ export const ListCredentialsQueryParams = zod.object({
 })
 
 export const ListCredentialsResponseItem = zod.object({
-  "id": zod.string(),
+  "id": zod.string().uuid(),
   "division": zod.enum(['agency', 'ai', 'studios', 'os']),
   "platform": zod.string(),
   "accountName": zod.string(),
@@ -100,7 +100,7 @@ export const CreateCredentialBody = zod.object({
 })
 
 export const CreateCredentialResponse = zod.object({
-  "id": zod.string(),
+  "id": zod.string().uuid(),
   "division": zod.enum(['agency', 'ai', 'studios', 'os']),
   "platform": zod.string(),
   "accountName": zod.string(),
@@ -134,7 +134,7 @@ export const UpdateCredentialBody = zod.object({
 })
 
 export const UpdateCredentialResponse = zod.object({
-  "id": zod.string(),
+  "id": zod.string().uuid(),
   "division": zod.enum(['agency', 'ai', 'studios', 'os']),
   "platform": zod.string(),
   "accountName": zod.string(),
@@ -161,7 +161,7 @@ export const FavoriteCredentialBody = zod.object({
 })
 
 export const FavoriteCredentialResponse = zod.object({
-  "id": zod.string(),
+  "id": zod.string().uuid(),
   "division": zod.enum(['agency', 'ai', 'studios', 'os']),
   "platform": zod.string(),
   "accountName": zod.string(),
@@ -202,7 +202,7 @@ export const LockVaultResponse = zod.void()
 
 
 export const GetFounderAccessResponseItem = zod.object({
-  "id": zod.string(),
+  "id": zod.string().uuid(),
   "name": zod.string(),
   "founder": zod.string(),
   "active": zod.boolean(),
@@ -212,7 +212,7 @@ export const GetFounderAccessResponse = zod.array(GetFounderAccessResponseItem)
 
 
 export const UpdateFounderAccessParams = zod.object({
-  "id": zod.coerce.string()
+  "id": zod.coerce.string().uuid()
 })
 
 export const updateFounderAccessBodyAllowedDivisionsMax = 4;
@@ -225,7 +225,7 @@ export const UpdateFounderAccessBody = zod.object({
 })
 
 export const UpdateFounderAccessResponse = zod.object({
-  "id": zod.string(),
+  "id": zod.string().uuid(),
   "name": zod.string(),
   "founder": zod.string(),
   "active": zod.boolean(),

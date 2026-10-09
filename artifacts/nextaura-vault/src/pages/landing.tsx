@@ -1,7 +1,7 @@
 import { Link, Redirect } from 'wouter';
 import { motion } from 'framer-motion';
-import { Show } from '@clerk/react';
 import { ArrowRight, Clock, Fingerprint, KeyRound, ShieldCheck } from 'lucide-react';
+import { useAuth } from '@/components/auth/provider';
 import { DIVISIONS, DIVISION_ORDER } from '@/lib/brand';
 import { Ambient } from '@/components/vault/ambient';
 import { DivisionLogo } from '@/components/vault/logos';
@@ -34,7 +34,7 @@ function Landing() {
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9, duration: 1 }} className="mt-5 text-sm uppercase tracking-[0.34em] text-[#b9a77f]">Private Access. Complete Control.</motion.p>
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2, duration: 0.9 }} className="mt-10 flex flex-col items-center gap-3 sm:flex-row">
           <Button asChild size="lg" className="group h-12 gap-2 px-8 text-[15px]"><Link href="/sign-in" data-testid="link-enter-vault">Enter the vault<ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" /></Link></Button>
-          <Link href="/sign-up" className="px-4 py-2 text-sm text-muted-foreground underline-offset-4 transition hover:text-foreground hover:underline" data-testid="link-register">Register a founder account</Link>
+          <span className="px-4 py-2 text-sm text-muted-foreground" data-testid="text-founders-only">Provisioned founders only</span>
         </motion.div>
       </section>
 
@@ -73,10 +73,7 @@ function Landing() {
 }
 
 export default function Home() {
-  return (
-    <>
-      <Show when="signed-in"><Redirect to="/dashboard" /></Show>
-      <Show when="signed-out"><Landing /></Show>
-    </>
-  );
+  const { loading, session } = useAuth();
+  if (!loading && session) return <Redirect to="/dashboard" />;
+  return <Landing />;
 }

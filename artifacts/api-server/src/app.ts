@@ -2,11 +2,9 @@ import express, { type Express, type ErrorRequestHandler } from "express";
 import pinoHttp from "pino-http";
 import helmet from "helmet";
 import { rateLimit } from "express-rate-limit";
-import { clerkMiddleware, getAuth } from "@clerk/express";
-import { publishableKeyFromHost } from "@clerk/shared/keys";
-import { CLERK_PROXY_PATH, clerkProxyMiddleware, getClerkProxyHost } from "./middlewares/clerkProxyMiddleware";
 import router from "./routes";
 import { logger } from "./lib/logger";
+import { authRateLimitKey, publicHost } from "./lib/request-security";
 
 const app: Express = express();
 app.set("trust proxy", 1);
@@ -31,21 +29,15 @@ app.use(
     },
   }),
 );
-app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.json({ limit: "12mb" }));
-app.use(
-  clerkMiddleware((req) => ({
-    publishableKey: publishableKeyFromHost(getClerkProxyHost(req) ?? "", process.env.CLERK_PUBLISHABLE_KEY),
-  })),
-);
 
 // Browser-cookie authentication is same-origin only. Never allow credentialed
 // wildcard CORS; reject cross-site mutations even when a valid cookie is present.
 app.use("/api/vault", (req, res, next) => {
   if (["POST", "PATCH", "DELETE", "PUT"].includes(req.method)) {
     const origin = req.get("origin");
-    const host = getClerkProxyHost(req) ?? req.get("host");
+    const host = publicHost(req);
     let sameOrigin = false;
     try {
       const source = origin ? new URL(origin) : undefined;
@@ -66,7 +58,7 @@ app.use("/api/vault", rateLimit({
 }));
 app.use("/api/vault", rateLimit({
   windowMs: 60_000, limit: 90, standardHeaders: "draft-8", legacyHeaders: false,
-  keyGenerator: (req) => getAuth(req).userId ?? "unauthenticated",
+  keyGenerator: authRateLimitKey,
   message: { error: "Too many vault actions. Please wait a minute." },
 }));
 

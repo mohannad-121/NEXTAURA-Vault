@@ -10,6 +10,23 @@ out-tsc
 
 # dependencies
 node_modules
+node_modules.stale-*
+
+# local environment and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+
+# local agent/conversation artifacts
+/.agents/
+/.conversation/
+/.vercel/
 
 # IDEs and editors
 /.idea

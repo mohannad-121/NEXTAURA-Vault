@@ -1,13 +1,12 @@
 import { useState, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Copy, KeyRound, Loader2, LogOut, ShieldCheck, Smartphone, UserCheck } from 'lucide-react';
-import { UserProfile, useClerk, useSession, useUser } from '@clerk/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { getGetVaultSessionQueryKey, useGetVaultSession, type VaultSession } from '@workspace/api-client-react';
+import { useAuth } from '@/components/auth/provider';
+import { TotpChallenge, TotpEnrollment } from '@/components/auth/totp';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { basePath, errMessage } from '@/lib/brand';
-import { clerkAppearance } from '@/lib/clerk';
+import { errMessage } from '@/lib/brand';
 import { Ambient } from './ambient';
 import { DivisionLogo, Wordmark } from './logos';
 import { ErrorState } from './states';
@@ -30,17 +29,17 @@ function Frame({ children, wide }: { children: ReactNode; wide?: boolean }) {
 }
 
 function SignOutLink() {
-  const clerk = useClerk();
+  const auth = useAuth();
   const qc = useQueryClient();
   return (
-    <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground" onClick={() => { qc.clear(); void clerk.signOut({ redirectUrl: basePath || '/' }); }} data-testid="button-sign-out">
+    <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground" onClick={() => { qc.clear(); void auth.signOut(); }} data-testid="button-sign-out">
       <LogOut className="h-4 w-4" />Sign out
     </Button>
   );
 }
 
 function OwnId() {
-  const { user } = useUser();
+  const { user } = useAuth();
   const [done, setDone] = useState(false);
   if (!user) return null;
   return (
@@ -51,39 +50,6 @@ function OwnId() {
         <Button variant="outline" size="sm" className="gap-2" onClick={() => { void navigator.clipboard.writeText(user.id).then(() => { setDone(true); setTimeout(() => setDone(false), 2000); }); }} data-testid="button-copy-own-id">{done ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}{done ? 'Copied' : 'Copy'}</Button>
       </div>
     </div>
-  );
-}
-
-function SecurityProfile() {
-  return (
-    <div className="mt-6 overflow-hidden rounded-2xl">
-      <UserProfile routing="hash" appearance={{ ...clerkAppearance, elements: { ...clerkAppearance.elements, rootBox: 'w-full', cardBox: 'w-full max-w-full rounded-2xl border border-border shadow-none' } }} />
-    </div>
-  );
-}
-
-function TotpVerify({ onDone }: { onDone: () => void }) {
-  const { session } = useSession();
-  const [code, setCode] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState('');
-  async function go(e: React.FormEvent) {
-    e.preventDefault();
-    if (!session) return;
-    setBusy(true); setErr('');
-    try {
-      const v = await session.startVerification({ level: 'second_factor' });
-      if (v.status === 'needs_second_factor') await session.attemptSecondFactorVerification({ strategy: 'totp', code: code.trim() });
-      await session.reload();
-      onDone();
-    } catch (x) { setErr(errMessage(x)); } finally { setBusy(false); setCode(''); }
-  }
-  return (
-    <form onSubmit={go} className="mt-6 space-y-3">
-      <Input inputMode="numeric" autoComplete="one-time-code" maxLength={8} value={code} onChange={(e) => setCode(e.target.value.replace(/\s/g, ''))} placeholder="6-digit authenticator code" className="h-12 text-center font-mono text-lg tracking-[0.4em]" data-testid="input-totp" />
-      {err && <p role="alert" className="text-sm text-destructive">{err}</p>}
-      <Button type="submit" className="h-11 w-full" disabled={code.length < 6 || busy} data-testid="button-verify-totp">{busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Verify and continue</Button>
-    </form>
   );
 }
 
@@ -109,9 +75,9 @@ function Blocker({ session, recheck, checking }: { session: VaultSession; rechec
         </ol>
         <h1 className="font-display text-4xl">{c.t}</h1>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{c.b}</p>
-        {session.status === 'mfa_required' && <SecurityProfile />}
-        {session.status === 'access_pending' && <><OwnId /><details className="mt-4 text-sm text-muted-foreground"><summary className="cursor-pointer text-foreground" data-testid="button-open-security">Set up my authenticator now</summary><SecurityProfile /></details></>}
-        {session.status === 'mfa_verification_required' && <TotpVerify onDone={recheck} />}
+        {session.status === 'mfa_required' && <TotpEnrollment onComplete={recheck} />}
+        {session.status === 'access_pending' && <OwnId />}
+        {session.status === 'mfa_verification_required' && <TotpChallenge onComplete={recheck} />}
         <div className="mt-6 flex flex-wrap items-center justify-between gap-2">
           <SignOutLink />
           {session.status !== 'mfa_verification_required' && (

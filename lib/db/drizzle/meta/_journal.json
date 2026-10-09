@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1791481766901,
+      "tag": "0000_nextaura_vault_baseline",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791481815931,
+      "tag": "0001_supabase_private_access",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791498876764,
+      "tag": "0002_supabase_auth_uuids",
+      "breakpoints": true
+    }
+  ]
+}

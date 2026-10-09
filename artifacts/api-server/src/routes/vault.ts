@@ -10,8 +10,8 @@ import {
   RevealCredentialParams, RevealCredentialResponse, UpdateVaultSettingsBody, UpdateVaultSettingsResponse,
   GetFounderAccessResponse, UpdateFounderAccessParams, UpdateFounderAccessBody, UpdateFounderAccessResponse,
 } from "@workspace/api-zod";
-import { clerkClient, getAuth } from "@clerk/express";
 import { sessionGate, requireVault, requireRecentMfa, currentFounder, allows, founderRole } from "../middlewares/vault-auth";
+import { verifySupabaseRequest } from "../lib/supabase-auth";
 import { platforms, divisions } from "../lib/platforms";
 import { encrypt, decrypt } from "../lib/vault-crypto";
 import { audit } from "../lib/audit";
@@ -19,7 +19,7 @@ import backupRouter from "./vault-backup";
 
 const router: IRouter = Router();
 router.use((_req, res, next) => {
-  res.set({ "Cache-Control": "no-store, private", "Pragma": "no-cache", "Vary": "Cookie" });
+  res.set({ "Cache-Control": "no-store, private", "Pragma": "no-cache", "Vary": "Authorization" });
   next();
 });
 
@@ -29,10 +29,10 @@ router.get("/me", async (req, res): Promise<void> => {
 });
 
 // Lock is possible even before MFA/encryption setup. Mark locally revoked first
-// so an already-issued Clerk session token cannot open the vault during its TTL.
+// so the already-issued access token cannot reopen the vault during its TTL.
 router.post("/lock", async (req, res): Promise<void> => {
-  const auth = getAuth(req);
-  if (!auth.userId || !auth.sessionId || !founderRole(auth.userId)) {
+  const auth = await verifySupabaseRequest(req);
+  if (!auth || !founderRole(auth.userId)) {
     res.status(401).json({ error: "Unauthorized" }); return;
   }
   await db.insert(vaultSessionsTable).values({
@@ -40,7 +40,6 @@ router.post("/lock", async (req, res): Promise<void> => {
   }).onConflictDoUpdate({ target: vaultSessionsTable.id, set: { revoked: true } });
   const [founder] = await db.select().from(foundersTable).where(eq(foundersTable.id, auth.userId));
   if (founder) await audit(founder, "Vault locked");
-  await clerkClient.sessions.revokeSession(auth.sessionId);
   res.sendStatus(204);
 });
 

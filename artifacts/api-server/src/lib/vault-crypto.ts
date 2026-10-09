@@ -1,6 +1,6 @@
 import { createCipheriv, createDecipheriv, hkdfSync, randomBytes } from "node:crypto";
 
-// Separate from Clerk and session keys. Never generate an ephemeral fallback:
+// Separate from Supabase Auth and session keys. Never generate an ephemeral fallback:
 // loss or replacement of this key makes both credentials and backups unreadable.
 export function encryptionReady(): boolean {
   return /^[a-fA-F0-9]{64}$/.test(process.env.VAULT_ENCRYPTION_KEY ?? "");

@@ -2,12 +2,13 @@ import { test, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import { encrypt, decrypt, encryptionReady } from "./vault-crypto";
 import { configuredFounderRole, validSecondFactorAge } from "./vault-policy";
+import { authRateLimitKey, publicHost } from "./request-security";
 
 // Explicitly fake test-only key. Tests never read or use the project's real key.
 beforeEach(() => {
   process.env.VAULT_ENCRYPTION_KEY = "0".repeat(64);
-  process.env.FOUNDER_MOHANNAD_ID = "user_testFounderA";
-  process.env.FOUNDER_MOAYAD_ID = "user_testFounderB";
+  process.env.FOUNDER_MOHANNAD_USER_ID = "11111111-1111-4111-8111-111111111111";
+  process.env.FOUNDER_MOAYAD_USER_ID = "22222222-2222-4222-8222-222222222222";
 });
 test("credential encryption round trips fake unicode secrets", () => {
   const fake = "test-only-password-✓";
@@ -51,25 +52,69 @@ test("invalid envelope shapes are rejected", () => {
   for (const input of ["", "v1.a.b.c", "v2.a.b.c", "v1.a.b.c.d"]) assert.throws(() => decrypt(input, "record"));
 });
 test("only two configured founder identities are authorized", () => {
-  assert.equal(configuredFounderRole("user_testFounderA"), "mohannad");
-  assert.equal(configuredFounderRole("user_testFounderB"), "moayad");
-  assert.equal(configuredFounderRole("user_randomUser"), undefined);
+  assert.equal(configuredFounderRole("11111111-1111-4111-8111-111111111111"), "mohannad");
+  assert.equal(configuredFounderRole("22222222-2222-4222-8222-222222222222"), "moayad");
+  assert.equal(configuredFounderRole("33333333-3333-4333-8333-333333333333"), undefined);
 });
 test("partial founder configuration denies every identity", () => {
-  delete process.env.FOUNDER_MOAYAD_ID;
-  assert.equal(configuredFounderRole("user_testFounderA"), undefined);
+  delete process.env.FOUNDER_MOAYAD_USER_ID;
+  assert.equal(configuredFounderRole("11111111-1111-4111-8111-111111111111"), undefined);
 });
 test("duplicate founder identities fail closed", () => {
-  process.env.FOUNDER_MOAYAD_ID = process.env.FOUNDER_MOHANNAD_ID;
-  assert.equal(configuredFounderRole("user_testFounderA"), undefined);
+  process.env.FOUNDER_MOAYAD_USER_ID = process.env.FOUNDER_MOHANNAD_USER_ID;
+  assert.equal(configuredFounderRole("11111111-1111-4111-8111-111111111111"), undefined);
 });
 test("malformed founder IDs fail closed", () => {
-  process.env.FOUNDER_MOHANNAD_ID = "not-a-clerk-id";
-  assert.equal(configuredFounderRole("user_testFounderB"), undefined);
+  process.env.FOUNDER_MOHANNAD_USER_ID = "not-a-uuid";
+  assert.equal(configuredFounderRole("22222222-2222-4222-8222-222222222222"), undefined);
 });
 test("missing, negative and nonnumeric MFA claims cannot authorize access", () => {
   for (const input of [undefined, null, -1, NaN, Infinity, "0", {}, []]) assert.equal(validSecondFactorAge(input), Infinity);
   assert.equal(validSecondFactorAge(0), 0);
   assert.equal(validSecondFactorAge(4), 4);
   assert.ok(validSecondFactorAge(5) >= 5);
+});
+test("rate-limit keys never contain bearer credentials", () => {
+  const token = "test-only-bearer-value";
+  const req = {
+    get: (name: string) => name === "authorization" ? `Bearer ${token}` : undefined,
+  };
+  const key = authRateLimitKey(req as never);
+  assert.equal(key.length, 64);
+  assert.ok(!key.includes(token));
+});
+test("forwarded production host is normalized without trusting extra values", () => {
+  const req = {
+    headers: { "x-forwarded-host": "vault.example.com, internal.example" },
+    get: () => "ignored.example",
+  };
+  assert.equal(publicHost(req as never), "vault.example.com");
+});
+test("division and recent-MFA gates fail closed", async () => {
+  const testDatabaseUrl = new URL("postgresql://127.0.0.1:5432/postgres?sslmode=require");
+  testDatabaseUrl.username = "test";
+  testDatabaseUrl.password = "test";
+  process.env.DATABASE_URL = testDatabaseUrl.toString();
+  process.env.SUPABASE_PROJECT_ID = "qulqcuuzncyyszgdpfad";
+  process.env.SUPABASE_URL = "https://qulqcuuzncyyszgdpfad.supabase.co";
+  process.env.SUPABASE_PUBLISHABLE_KEY = "test-only-publishable-key";
+  const { allows, requireRecentMfa } = await import("../middlewares/vault-auth");
+  const res = {
+    locals: {
+      founder: { allowedDivisions: ["agency"] },
+      auth: { aal: "aal2", secondFactorAgeMinutes: 4 },
+    },
+    statusCode: 200,
+    body: undefined as unknown,
+    status(code: number) { this.statusCode = code; return this; },
+    json(body: unknown) { this.body = body; return this; },
+  };
+  assert.equal(allows(res as never, "agency"), true);
+  assert.equal(allows(res as never, "tech"), false);
+  let passed = false;
+  requireRecentMfa({} as never, res as never, () => { passed = true; });
+  assert.equal(passed, true);
+  res.locals.auth.secondFactorAgeMinutes = 5;
+  requireRecentMfa({} as never, res as never, () => assert.fail("stale MFA must not pass"));
+  assert.equal(res.statusCode, 403);
 });

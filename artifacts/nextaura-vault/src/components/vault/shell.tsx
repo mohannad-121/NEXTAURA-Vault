@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'wouter';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useClerk } from '@clerk/react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/components/auth/provider';
 import { Activity as ActivityIcon, Command as CommandIcon, LayoutDashboard, LayoutGrid, Loader2, Lock, Menu, Plus, Search, Settings, Star } from 'lucide-react';
 import {
   getGetPlatformsQueryKey, getGetVaultSessionQueryKey, getListCredentialsQueryKey, useGetPlatforms, useListCredentials, useLockVault, useUpdateVaultSettings,
@@ -11,7 +11,7 @@ import {
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, CommandShortcut } from '@/components/ui/command';
-import { DIVISIONS, DIVISION_ORDER, basePath, isDivision, resolvePlatform } from '@/lib/brand';
+import { DIVISIONS, DIVISION_ORDER, isDivision, resolvePlatform } from '@/lib/brand';
 import { cn } from '@/lib/utils';
 import { Ambient } from './ambient';
 import { VaultContext } from './context';
@@ -92,7 +92,7 @@ function Palette({ open, setOpen, openCreate }: { open: boolean; setOpen: (o: bo
 export function Shell({ session, children }: { session: VaultSession; children: ReactNode }) {
   const [loc, setLoc] = useLocation();
   const qc = useQueryClient();
-  const clerk = useClerk();
+  const auth = useAuth();
   const lockM = useLockVault();
   const settingsM = useUpdateVaultSettings();
   const [menu, setMenu] = useState(false);
@@ -116,8 +116,8 @@ export function Shell({ session, children }: { session: VaultSession; children: 
     setLocking(true);
     try { await lockM.mutateAsync(); } catch { /* server session may already be gone */ }
     qc.clear();
-    await clerk.signOut({ redirectUrl: basePath || '/' });
-  }, [lockM, qc, clerk]);
+    await auth.signOut();
+  }, [lockM, qc, auth]);
   const lockRef = useRef(lock);
   lockRef.current = lock;
 

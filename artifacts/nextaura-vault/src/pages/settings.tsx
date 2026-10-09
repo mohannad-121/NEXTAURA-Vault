@@ -1,5 +1,4 @@
 import { useRef, useState, type ReactNode } from 'react';
-import { UserProfile, useUser } from '@clerk/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Download, Film, Loader2, Lock, ShieldCheck, Upload, UserRound } from 'lucide-react';
 import {
@@ -13,7 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useAccessWrite, useBackupOps } from '@/hooks/use-vault-ops';
 import { DIVISIONS, DIVISION_ORDER, errMessage } from '@/lib/brand';
-import { clerkAppearance } from '@/lib/clerk';
+import { useAuth } from '@/components/auth/provider';
+import { AuthenticatorManager } from '@/components/auth/totp';
 import { DivisionLogo } from '@/components/vault/logos';
 import { useVault } from '@/components/vault/context';
 import { ErrorState, PageHeader } from '@/components/vault/states';
@@ -68,7 +68,7 @@ function FounderAccessPanel() {
 
 export default function SettingsPage() {
   const { session, replayIntro, lock, locking } = useVault();
-  const { user } = useUser();
+  const { user } = useAuth();
   const { toast } = useToast();
   const qc = useQueryClient();
   const settings = useUpdateVaultSettings();
@@ -114,7 +114,7 @@ export default function SettingsPage() {
         <Section icon={<UserRound className="h-4 w-4" />} title="Profile" tid="section-profile">
           <Row l="Name"><span data-testid="text-profile-name">{session.name}</span></Row>
           <Row l="Founder identity"><span>{session.founder}</span></Row>
-          <Row l="Sign-in email"><span className="break-all">{user?.primaryEmailAddress?.emailAddress ?? '-'}</span></Row>
+          <Row l="Sign-in email"><span className="break-all">{user?.email ?? '-'}</span></Row>
           <Row l="Division access"><span className="flex gap-1.5">{session.allowedDivisions.map((d) => <DivisionLogo key={d} division={d} size={24} crop={1.7} />)}</span></Row>
           <Button variant="outline" className="mt-4" onClick={() => setProfileOpen(true)} data-testid="button-manage-profile">Manage account</Button>
         </Section>
@@ -144,7 +144,7 @@ export default function SettingsPage() {
 
         <Section icon={<Download className="h-4 w-4" />} title="Encrypted backup" tid="section-backup">
           <p className="mb-4 text-sm text-muted-foreground">Export produces an encrypted file only the server key can open. Import restores credentials from such a file. Both require a fresh second factor.</p>
-          <p className="mb-4 text-xs leading-relaxed text-muted-foreground">Keep an offline recovery copy of the server encryption key and your authenticator backup codes in separate secure locations. Losing the key makes credentials and backups unreadable. Changing the key is not a supported recovery method. Import merges records and skips existing IDs.</p>
+          <p className="mb-4 text-xs leading-relaxed text-muted-foreground">Keep an offline recovery copy of the server encryption key and a backup authenticator on separate secure devices. Losing the key makes credentials and backups unreadable. Changing the key is not a supported recovery method. Import merges records and skips existing IDs.</p>
           <div className="flex flex-wrap gap-2">
             <Button className="gap-2" onClick={() => void doExport()} disabled={backup.exporting} data-testid="button-export-backup">{backup.exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}Export backup</Button>
             <Button variant="outline" className="gap-2" onClick={() => file.current?.click()} disabled={backup.restoring} data-testid="button-import-backup">{backup.restoring ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}Import backup</Button>
@@ -158,9 +158,10 @@ export default function SettingsPage() {
       </div>
 
       <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
-        <DialogContent className="max-h-[92dvh] w-auto max-w-[95vw] overflow-auto border-0 bg-transparent p-0 shadow-none">
-          <DialogTitle className="sr-only">Account</DialogTitle><DialogDescription className="sr-only">Manage profile and security</DialogDescription>
-          <UserProfile routing="hash" appearance={clerkAppearance} />
+        <DialogContent className="glass max-h-[92dvh] max-w-lg overflow-auto rounded-3xl p-7">
+          <DialogTitle className="font-display text-3xl">Account security</DialogTitle>
+          <DialogDescription>Manage verified authenticators for {user?.email ?? 'this founder account'}.</DialogDescription>
+          <AuthenticatorManager />
         </DialogContent>
       </Dialog>
     </div>

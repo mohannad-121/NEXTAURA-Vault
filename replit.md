@@ -22,33 +22,32 @@ A private, encrypted credential command center for the two NextAura founders.
 
 ## Required setup before real credentials
 
-1. Create two separate Clerk accounts through the application, then configure
-   `FOUNDER_MOHANNAD_ID` and `FOUNDER_MOAYAD_ID` with their distinct Clerk user IDs.
-   These IDs may be nonsecret environment variables or stored as secrets.
-   Never automatically grant the first user founder access.
-2. Enable Authenticator application and Backup codes in the managed Clerk
-   dashboard, in both Development and Production as appropriate. Both founders
-   must enroll an authenticator. The API refuses users without a verified MFA
-   claim and current authenticator enrollment, irrespective of provider defaults.
-3. Add `VAULT_ENCRYPTION_KEY` via Replit Secrets: a securely generated 32-byte key
+1. Disable public sign-up in the dedicated Supabase project, then create exactly
+   two confirmed Auth users through an approved administrative path. Configure
+   `FOUNDER_MOHANNAD_USER_ID` and `FOUNDER_MOAYAD_USER_ID` with their distinct
+   Supabase Auth UUIDs. Never authorize founders by email or profile metadata.
+2. Both founders must enroll and verify TOTP. The API refuses access without a
+   verified TOTP factor, an `aal2` token, and a current Supabase Auth session.
+3. Add `VAULT_ENCRYPTION_KEY` through the server's secret manager: a securely generated 32-byte key
    encoded as exactly 64 hexadecimal characters. Do not paste this key into chat,
    source, logs, or databases. Keep an offline recovery copy in a trusted secure
    location. Do not reuse a login password, SESSION_SECRET, or another app's key.
-4. Development and Production Clerk accounts are separate. Configure the founder
-   IDs for each environment. A production key must be configured before using
-   real credentials; sharing a key across environments is not recommended.
+4. Keep development and production Supabase projects separate. Configure each
+   environment with its own project URL, publishable key, founder UUIDs, and
+   encryption key.
 5. Complete signed-in acceptance checks before production use. No authentication
    bypass should ever be introduced just to screenshot or test the dashboard.
 
 ## Architecture & security
 
-- React/Vite, Wouter, React Query; Clerk browser cookies and same-origin APIs.
+- React/Vite, Wouter, React Query, and Supabase Auth bearer sessions.
 - Shared Express server and PostgreSQL/Drizzle; contract is `lib/api-spec/openapi.yaml`.
 - Ciphertexts use AES-256-GCM, random 96-bit nonces, HKDF-separated credential and
    backup keys, and authenticated per-record IDs. Missing/malformed encryption
    configuration fails closed rather than generating a temporary key.
 - Founder allowlist is trusted server configuration, never user-editable profile
-   metadata. Auth checks also fetch Clerk's current enrollment/session state.
+  metadata. Auth checks verify signed claims, the current Auth session, `aal2`,
+  and verified TOTP enrollment.
 - Secrets are decrypted only on a recent-MFA-authorized POST reveal. Metadata
    queries never select encrypted passwords. Responses use no-store headers.
 - All sensitive writes, reveal, delete, access changes, export and restore require
@@ -67,8 +66,8 @@ A private, encrypted credential command center for the two NextAura founders.
 
 ## Recovery design and limits
 
-- Authenticator backup codes recover account access; encrypted archives recover
-   vault records. Both still require the original encryption key to decrypt.
+- A second verified TOTP factor can recover account access; encrypted archives
+  recover vault records. Both still require the original encryption key to decrypt.
 - Losing or changing the master key without re-encryption makes stored credentials
    and backups unreadable. Never rotate/delete it casually. Key rotation tooling
    and external KMS/HSM integration are not implemented.

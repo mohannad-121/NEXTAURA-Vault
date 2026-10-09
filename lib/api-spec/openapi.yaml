@@ -148,7 +148,7 @@ paths:
     post:
       operationId: lockVault
       responses:
-        "204": { description: Clerk session revoked; sign in again to unlock }
+        "204": { description: Supabase session locked; sign in again to unlock }
   /vault/access:
     get:
       operationId: getFounderAccess
@@ -162,7 +162,7 @@ paths:
                 items: { $ref: "#/components/schemas/FounderAccess" }
   /vault/access/{id}:
     parameters:
-      - { name: id, in: path, required: true, schema: { type: string } }
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
     patch:
       operationId: updateFounderAccess
       requestBody:
@@ -245,7 +245,7 @@ components:
       type: object
       required: [id, division, platform, accountName, username, favorite, createdAt, updatedAt]
       properties:
-        id: { type: string }
+        id: { type: string, format: uuid }
         division: { $ref: "#/components/schemas/Division" }
         platform: { type: string }
         accountName: { type: string }
@@ -293,7 +293,7 @@ components:
       type: object
       required: [id, actor, action, division, createdAt]
       properties:
-        id: { type: string }
+        id: { type: string, format: uuid }
         actor: { type: string }
         action: { type: string }
         division: { type: string }
@@ -307,7 +307,7 @@ components:
       type: object
       required: [id, name, founder, allowedDivisions, active]
       properties:
-        id: { type: string }
+        id: { type: string, format: uuid }
         name: { type: string }
         founder: { type: string }
         active: { type: boolean }
