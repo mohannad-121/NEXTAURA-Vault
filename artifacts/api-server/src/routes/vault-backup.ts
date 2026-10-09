@@ -3,10 +3,10 @@ import { z } from "zod";
 import { inArray } from "drizzle-orm";
 import { db, credentialsTable, activityTable } from "@workspace/db";
 import { ExportVaultBackupResponse, RestoreVaultBackupBody, RestoreVaultBackupResponse } from "@workspace/api-zod";
-import { requireRecentMfa, currentFounder, allows } from "../middlewares/vault-auth";
-import { encrypt, decrypt } from "../lib/vault-crypto";
-import { platforms } from "../lib/platforms";
-import { audit } from "../lib/audit";
+import { requireRecentMfa, currentFounder, allows } from "../middlewares/vault-auth.js";
+import { encrypt, decrypt } from "../lib/vault-crypto.js";
+import { platforms } from "../lib/platforms.js";
+import { audit } from "../lib/audit.js";
 
 const router: IRouter = Router();
 const archivedCredential = z.object({

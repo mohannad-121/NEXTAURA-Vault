@@ -1,12 +1,17 @@
-import express, { type Express, type ErrorRequestHandler } from "express";
-import pinoHttp from "pino-http";
+import express, {
+  type ErrorRequestHandler,
+  type NextFunction,
+  type Request,
+  type Response,
+} from "express";
+import { pinoHttp } from "pino-http";
 import helmet from "helmet";
 import { rateLimit } from "express-rate-limit";
-import router from "./routes";
-import { logger } from "./lib/logger";
-import { authRateLimitKey, publicHost } from "./lib/request-security";
+import router from "./routes/index.js";
+import { logger } from "./lib/logger.js";
+import { authRateLimitKey, publicHost } from "./lib/request-security.js";
 
-const app: Express = express();
+const app = express();
 app.set("trust proxy", 1);
 app.disable("x-powered-by");
 
@@ -34,7 +39,7 @@ app.use(express.json({ limit: "12mb" }));
 
 // Browser-cookie authentication is same-origin only. Never allow credentialed
 // wildcard CORS; reject cross-site mutations even when a valid cookie is present.
-app.use("/api/vault", (req, res, next) => {
+app.use("/api/vault", (req: Request, res: Response, next: NextFunction) => {
   if (["POST", "PATCH", "DELETE", "PUT"].includes(req.method)) {
     const origin = req.get("origin");
     const host = publicHost(req);
@@ -64,13 +69,21 @@ app.use("/api/vault", rateLimit({
 
 app.use("/api", router);
 
-const errorHandler: ErrorRequestHandler = (error, req, res, _next) => {
+const errorHandler: ErrorRequestHandler = (
+  error: unknown,
+  req: Request,
+  res: Response,
+  _next: NextFunction,
+) => {
   // Never log the raw error: DB errors, parser errors and third-party SDK errors
   // can contain query values, request bodies, tokens or other credentials.
   req.log.error({ errorType: error instanceof Error ? error.name : "UnknownError" }, "Request failed");
   if (res.headersSent) return;
   res.set("Cache-Control", "no-store");
-  const status = typeof error?.status === "number" && [400, 413].includes(error.status) ? error.status : 500;
+  const errorStatus = typeof error === "object" && error !== null && "status" in error
+    ? error.status
+    : undefined;
+  const status = typeof errorStatus === "number" && [400, 413].includes(errorStatus) ? errorStatus : 500;
   res.status(status).json({ error: status === 500 ? "The vault request could not be completed." : "Invalid or oversized request." });
 };
 app.use(errorHandler);

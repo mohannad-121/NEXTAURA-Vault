@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
-import * as schema from "./schema/index";
+import * as schema from "./schema/index.js";
 
 import fs from "node:fs";
 import path from "node:path";
@@ -63,4 +63,4 @@ function createPoolConfig(): pg.PoolConfig {
 export const pool = new Pool(createPoolConfig());
 export const db = drizzle(pool, { schema });
 
-export * from "./schema/index";
+export * from "./schema/index.js";

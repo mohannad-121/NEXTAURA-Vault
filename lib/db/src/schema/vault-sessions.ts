@@ -1,6 +1,6 @@
 import { pgTable, uuid, timestamp, boolean, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
-import { foundersTable } from "./founders";
+import { foundersTable } from "./founders.js";
 export const vaultSessionsTable = pgTable("vault_sessions", {
   id: uuid("id").primaryKey(),
   founderId: uuid("founder_id").notNull().references(() => foundersTable.id, { onDelete: "cascade" }),

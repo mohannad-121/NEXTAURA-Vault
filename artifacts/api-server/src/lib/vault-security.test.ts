@@ -1,8 +1,8 @@
 import { test, beforeEach } from "node:test";
 import assert from "node:assert/strict";
-import { encrypt, decrypt, encryptionReady } from "./vault-crypto";
-import { configuredFounderRole, validSecondFactorAge } from "./vault-policy";
-import { authRateLimitKey, publicHost } from "./request-security";
+import { encrypt, decrypt, encryptionReady } from "./vault-crypto.js";
+import { configuredFounderRole, validSecondFactorAge } from "./vault-policy.js";
+import { authRateLimitKey, publicHost } from "./request-security.js";
 
 // Explicitly fake test-only key. Tests never read or use the project's real key.
 beforeEach(() => {
@@ -98,7 +98,7 @@ test("division and recent-MFA gates fail closed", async () => {
   process.env.SUPABASE_PROJECT_ID = "qulqcuuzncyyszgdpfad";
   process.env.SUPABASE_URL = "https://qulqcuuzncyyszgdpfad.supabase.co";
   process.env.SUPABASE_PUBLISHABLE_KEY = "test-only-publishable-key";
-  const { allows, requireRecentMfa } = await import("../middlewares/vault-auth");
+  const { allows, requireRecentMfa } = await import("../middlewares/vault-auth.js");
   const res = {
     locals: {
       founder: { allowedDivisions: ["agency"] },

@@ -10,12 +10,12 @@ import {
   RevealCredentialParams, RevealCredentialResponse, UpdateVaultSettingsBody, UpdateVaultSettingsResponse,
   GetFounderAccessResponse, UpdateFounderAccessParams, UpdateFounderAccessBody, UpdateFounderAccessResponse,
 } from "@workspace/api-zod";
-import { sessionGate, requireVault, requireRecentMfa, currentFounder, allows, founderRole } from "../middlewares/vault-auth";
-import { verifySupabaseRequest } from "../lib/supabase-auth";
-import { platforms, divisions } from "../lib/platforms";
-import { encrypt, decrypt } from "../lib/vault-crypto";
-import { audit } from "../lib/audit";
-import backupRouter from "./vault-backup";
+import { sessionGate, requireVault, requireRecentMfa, currentFounder, allows, founderRole } from "../middlewares/vault-auth.js";
+import { verifySupabaseRequest } from "../lib/supabase-auth.js";
+import { platforms, divisions } from "../lib/platforms.js";
+import { encrypt, decrypt } from "../lib/vault-crypto.js";
+import { audit } from "../lib/audit.js";
+import backupRouter from "./vault-backup.js";
 
 const router: IRouter = Router();
 router.use((_req, res, next) => {

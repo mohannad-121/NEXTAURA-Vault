@@ -5,7 +5,7 @@
  * Private NextAura credential vault. All vault operations require founder authorization and MFA.
  * OpenAPI spec version: 1.0.0
  */
-import type { BackupEnvelopeFormat } from './backupEnvelopeFormat';
+import type { BackupEnvelopeFormat } from './backupEnvelopeFormat.js';
 
 export interface BackupEnvelope {
   format: BackupEnvelopeFormat;

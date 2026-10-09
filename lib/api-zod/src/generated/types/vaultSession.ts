@@ -5,8 +5,8 @@
  * Private NextAura credential vault. All vault operations require founder authorization and MFA.
  * OpenAPI spec version: 1.0.0
  */
-import type { Division } from './division';
-import type { VaultSessionStatus } from './vaultSessionStatus';
+import type { Division } from './division.js';
+import type { VaultSessionStatus } from './vaultSessionStatus.js';
 
 export interface VaultSession {
   status: VaultSessionStatus;

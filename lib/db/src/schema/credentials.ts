@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
 import { pgTable, text, uuid, timestamp, check, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
-import { foundersTable } from "./founders";
+import { foundersTable } from "./founders.js";
 export const credentialsTable = pgTable("vault_credentials", {
   id: uuid("id").primaryKey(),
   division: text("division").notNull(),

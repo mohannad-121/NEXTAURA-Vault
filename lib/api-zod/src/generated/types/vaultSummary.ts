@@ -5,7 +5,7 @@
  * Private NextAura credential vault. All vault operations require founder authorization and MFA.
  * OpenAPI spec version: 1.0.0
  */
-import type { DivisionSummary } from './divisionSummary';
+import type { DivisionSummary } from './divisionSummary.js';
 
 export interface VaultSummary {
   credentialCount: number;

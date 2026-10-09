@@ -17,8 +17,8 @@
 //   export type InsertPost = z.infer<typeof insertPostSchema>;
 //   export type Post = typeof postsTable.$inferSelect;
 
-export * from "./founders";
-export * from "./credentials";
-export * from "./favorites";
-export * from "./activity";
-export * from "./vault-sessions";
+export * from "./founders.js";
+export * from "./credentials.js";
+export * from "./favorites.js";
+export * from "./activity.js";
+export * from "./vault-sessions.js";

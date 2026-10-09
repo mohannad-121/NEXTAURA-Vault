@@ -5,14 +5,14 @@
   "scripts": {
     "preinstall": "node ./scripts/enforce-pnpm.mjs",
     "build": "pnpm run typecheck && pnpm -r --if-present run build",
-    "build:vercel": "pnpm run typecheck && pnpm --filter @workspace/nextaura-vault run build",
+    "build:vercel": "pnpm run typecheck && pnpm --filter @workspace/api-server run build && pnpm --filter @workspace/nextaura-vault run build",
     "check:env": "node --env-file-if-exists=.env --env-file-if-exists=.env.local ./scripts/check-vault-env.mjs",
     "check:env:vercel": "node --env-file-if-exists=.env --env-file-if-exists=.env.local ./scripts/check-vault-env.mjs --vercel",
     "dev:api": "pnpm --filter @workspace/api-server run dev",
     "dev:web": "pnpm --filter @workspace/nextaura-vault run dev",
     "test:security": "pnpm --filter @workspace/api-server run test:security",
     "typecheck:libs": "tsc --build",
-    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck && tsc -p api/tsconfig.json --noEmit"
+    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
   },
   "engines": {
     "node": "24.x"

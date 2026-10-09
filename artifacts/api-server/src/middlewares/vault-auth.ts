@@ -1,10 +1,10 @@
 import type { Request, Response, NextFunction } from "express";
 import { db, foundersTable, vaultSessionsTable, type Founder } from "@workspace/db";
 import { eq } from "drizzle-orm";
-import { encryptionReady } from "../lib/vault-crypto";
-import { audit } from "../lib/audit";
-import { configuredFounderRole } from "../lib/vault-policy";
-import { verifySupabaseRequest, type VerifiedAuth } from "../lib/supabase-auth";
+import { encryptionReady } from "../lib/vault-crypto.js";
+import { audit } from "../lib/audit.js";
+import { configuredFounderRole } from "../lib/vault-policy.js";
+import { verifySupabaseRequest, type VerifiedAuth } from "../lib/supabase-auth.js";
 
 export type VaultGate = {
   status: "ready" | "access_pending" | "mfa_required" | "mfa_verification_required" | "encryption_required";

@@ -1,6 +1,6 @@
 import { pgTable, uuid, primaryKey, index } from "drizzle-orm/pg-core";
-import { foundersTable } from "./founders";
-import { credentialsTable } from "./credentials";
+import { foundersTable } from "./founders.js";
+import { credentialsTable } from "./credentials.js";
 import { createInsertSchema } from "drizzle-zod";
 export const favoritesTable = pgTable("vault_favorites", {
   founderId: uuid("founder_id").notNull().references(() => foundersTable.id, { onDelete: "cascade" }),
